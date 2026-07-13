@@ -2,6 +2,64 @@
 set -eo pipefail
 
 export CCACHE_DIR=/app/build/ccache
+export PKG_CONFIG_PATH=/opt/install/lib/pkgconfig
+
+# zlib
+git clone https://github.com/madler/zlib.git --depth=1 --branch=v1.3.2 /tmp/zlib
+
+cd /tmp/zlib && rm -rf build
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/opt/install \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+  -DCMAKE_INSTALL_DATAROOTDIR=/tmp/zlib-data \
+  -DZLIB_BUILD_TESTING=OFF \
+  -DZLIB_BUILD_SHARED=OFF
+cmake --build build -j$(nproc)
+cmake --install build --strip
+
+# pcre2
+git clone --recursive https://github.com/PCRE2Project/pcre2.git --depth=1 --branch=pcre2-10.47 /tmp/pcre2
+
+cd /tmp/pcre2 && rm -rf build
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/opt/install \
+  -DCMAKE_INSTALL_DATAROOTDIR=/tmp/pcre2-data \
+  -DCMAKE_INSTALL_BINDIR=/tmp/pcre2-data \
+  -DCMAKE_DISABLE_FIND_PACKAGE_ZLIB=ON \
+  -DPCRE2_BUILD_PCRE2_16=ON \
+  -DPCRE2_BUILD_PCRE2_32=ON \
+  -DPCRE2_SUPPORT_JIT=ON \
+  -DPCRE2_STATIC_PIC=ON \
+  -DPCRE2_BUILD_PCRE2GREP=OFF \
+  -DPCRE2_BUILD_TESTS=OFF
+cmake --build build -j$(nproc)
+cmake --install build --strip
+
+# libffi
+git clone https://github.com/libffi/libffi.git --depth=1 --branch=v3.7.1 /tmp/libffi
+
+cd /tmp/libffi && rm -rf build && mkdir build
+./autogen.sh
+cd build
+../configure --prefix=/opt/install \
+  --disable-docs \
+  --disable-shared \
+  --without-gcc-arch
+make -j$(nproc) CFLAGS='-static -fPIC -O3 -DNDEBUG'
+make install-strip
+
+# GLib
+git clone --recursive https://github.com/GNOME/glib.git --depth=1 --branch=2.89.1 /tmp/glib
+
+cd /tmp/glib && rm -rf build
+meson setup build --buildtype=release \
+  --prefix=/opt/install \
+  --default-library=static \
+  --libdir=lib \
+  -Dtests=false \
+  -Dglib_debug=disabled
+meson compile -C build -j$(nproc)
+meson install -C build --strip
 
 # Pixman
 git clone https://gitlab.freedesktop.org/pixman/pixman.git --depth=1 --branch=pixman-0.46.4 /tmp/pixman
