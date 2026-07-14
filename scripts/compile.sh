@@ -17,6 +17,20 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
 cmake --build build -j$(nproc)
 cmake --install build --strip
 
+# libpng
+git clone https://github.com/pnggroup/libpng.git --depth=1 --branch=v1.6.58 /tmp/libpng
+
+cd /tmp/libpng && rm -rf build
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/opt/install \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+  -DCMAKE_INSTALL_DATAROOTDIR=/tmp/libpng-data \
+  -DCMAKE_INSTALL_BINDIR=/tmp/libpng-data \
+  -DPNG_TESTS=OFF \
+  -DPNG_SHARED=OFF
+cmake --build build -j$(nproc)
+cmake --install build --strip
+
 # pcre2
 git clone --recursive https://github.com/PCRE2Project/pcre2.git --depth=1 --branch=pcre2-10.47 /tmp/pcre2
 
@@ -63,9 +77,10 @@ meson install -C build --strip
 
 # Pixman
 git clone https://gitlab.freedesktop.org/pixman/pixman.git --depth=1 --branch=pixman-0.46.4 /tmp/pixman
-cd /tmp/pixman
 
+cd /tmp/pixman && rm -rf build
 meson setup build --buildtype=release \
+  --prefix=/opt/install \
   --default-library=static \
   --libdir=lib \
   -Dtests=disabled \
@@ -75,14 +90,13 @@ meson install -C build --strip
 
 # Cairo
 git clone https://gitlab.freedesktop.org/cairo/cairo.git --depth=1 --branch=1.18.4 /tmp/cairo
-cd /tmp/cairo
 
+cd /tmp/cairo && rm -rf build
 meson setup build --buildtype=release \
   --default-library=static \
   --libdir=lib \
   -Dtests=disabled \
-  -Dxlib=enabled \
-  -Dfontconfig=disabled
+  -Dxlib=enabled
 meson compile -C build -j$(nproc)
 meson install -C build --strip
 
