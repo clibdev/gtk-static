@@ -49,6 +49,20 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
 cmake --build build -j$(nproc)
 cmake --install build --strip
 
+# FreeType
+git clone https://github.com/freetype/freetype.git --depth=1 --branch=VER-2-14-3 /tmp/freetype
+
+cd /tmp/freetype && rm -rf build
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/opt/install \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DFT_DISABLE_HARFBUZZ=ON \
+  -DFT_DISABLE_BZIP2=ON \
+  -DFT_DISABLE_BROTLI=ON
+cmake --build build -j$(nproc)
+cmake --install build --strip
+
 # libffi
 git clone https://github.com/libffi/libffi.git --depth=1 --branch=v3.7.1 /tmp/libffi
 
