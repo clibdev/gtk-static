@@ -13,7 +13,7 @@ if [[ $1 == build-image ]]; then
 fi
 
 if [[ $1 == build-lib ]]; then
-  docker run --rm -v ./:/app gtk scripts/compile.sh
+  docker run -it --rm -v ./:/app gtk scripts/compile.sh
   sudo chown -R $USER:$USER build
 
   exit 0

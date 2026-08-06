@@ -63,6 +63,37 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
 cmake --build build -j$(nproc)
 cmake --install build --strip
 
+# Expat
+git clone https://github.com/libexpat/libexpat.git --depth=1 --branch=R_2_8_2 /tmp/libexpat
+
+cd /tmp/libexpat/expat && rm -rf build
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/opt/install \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+  -DCMAKE_INSTALL_DATAROOTDIR=/tmp/expat-data \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DEXPAT_BUILD_EXAMPLES=OFF \
+  -DEXPAT_BUILD_TESTS=OFF \
+  -DEXPAT_BUILD_TOOLS=OFF
+cmake --build build -j$(nproc)
+cmake --install build --strip
+
+# Fontconfig
+git clone https://gitlab.freedesktop.org/fontconfig/fontconfig.git --depth=1 --branch=2.17.1 /tmp/fontconfig
+
+cd /tmp/fontconfig && rm -rf build
+meson setup build --buildtype=release \
+  --prefix=/opt/install \
+  --default-library=static \
+  --libdir=lib \
+  --sysconfdir=/etc \
+  --datadir=/usr/share \
+  --localstatedir=/var \
+  -Dtests=disabled \
+  -Dtools=disabled
+meson compile -C build -j$(nproc)
+meson install -C build --strip
+
 # libffi
 git clone https://github.com/libffi/libffi.git --depth=1 --branch=v3.7.1 /tmp/libffi
 
