@@ -109,8 +109,10 @@ cd build
 ../configure --prefix=/opt/install \
   --disable-docs \
   --disable-shared \
-  --without-gcc-arch
-make -j$(nproc) CFLAGS='-static -fPIC -O3 -DNDEBUG'
+  --without-gcc-arch \
+  CC='ccache gcc' \
+  CFLAGS='-static -fPIC -O3 -DNDEBUG'
+make -j$(nproc)
 make install-strip
 
 # GLib
@@ -219,7 +221,7 @@ meson setup build --buildtype=release \
   -Dtiff=disabled \
   -Dglycin=disabled \
   -Dthumbnailer=disabled \
-  -Dintrospection=disabled > /app/build/build.txt
+  -Dintrospection=disabled
 meson compile -C build -j$(nproc)
 meson install -C build --strip
 
