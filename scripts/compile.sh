@@ -222,3 +222,17 @@ meson setup build --buildtype=release \
   -Dintrospection=disabled > /app/build/build.txt
 meson compile -C build -j$(nproc)
 meson install -C build --strip
+
+# Graphene
+git clone https://github.com/ebassi/graphene.git --depth=1 --branch=1.10.8 /tmp/graphene
+
+cd /tmp/graphene && rm -rf build
+meson setup build --buildtype=release \
+  --prefix=/opt/install \
+  --default-library=static \
+  --libdir=lib \
+  -Dtests=false \
+  -Dinstalled_tests=false \
+  -Dintrospection=disabled
+meson compile -C build -j$(nproc)
+meson install -C build --strip
