@@ -160,6 +160,30 @@ meson setup build --buildtype=release \
 meson compile -C build -j$(nproc)
 meson install -C build --strip
 
+# HarfBuzz
+git clone https://github.com/harfbuzz/harfbuzz.git --depth=1 --branch=14.3.0 /tmp/harfbuzz
+
+cd /tmp/harfbuzz && rm -rf build
+meson setup build --buildtype=release \
+  --prefix=/opt/install \
+  --default-library=static \
+  --libdir=lib \
+  -Dfreetype=enabled \
+  -Dglib=enabled \
+  -Dgobject=disabled \
+  -Dcairo=disabled \
+  -Dchafa=disabled \
+  -Dicu=disabled \
+  -Dpng=disabled \
+  -Dzlib=disabled \
+  -Dgpu=disabled \
+  -Dutilities=disabled \
+  -Dtests=disabled \
+  -Ddocs=disabled \
+  -Dintrospection=disabled
+meson compile -C build -j$(nproc)
+meson install -C build --strip
+
 # Pango
 git clone https://gitlab.gnome.org/GNOME/pango.git --depth=1 --branch=1.58.0 /tmp/pango
 
@@ -169,21 +193,22 @@ meson setup build --buildtype=release \
   --default-library=static \
   --libdir=lib \
   -Dbuild-testsuite=false \
-  -Dbuild-examples=false > /app/build/build.txt
+  -Dbuild-examples=false
 meson compile -C build -j$(nproc)
 meson install -C build --strip
 
 # gdk-pixbuf
 git clone https://gitlab.gnome.org/GNOME/gdk-pixbuf.git --depth=1 --branch=2.44.7 /tmp/gdk-pixbuf
-cd /tmp/gdk-pixbuf
 
+cd /tmp/gdk-pixbuf && rm -rf build
 meson setup build --buildtype=release \
+  --prefix=/opt/install \
   --default-library=static \
   --libdir=lib -Dman=false \
   -Dtests=false \
   -Dinstalled_tests=false \
   -Djpeg=disabled \
-  -Dgif=disabled
+  -Dgif=disabled > /app/build/build.txt
 meson compile -C build -j$(nproc)
 meson install -C build --strip
 
