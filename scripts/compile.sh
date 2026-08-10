@@ -3,6 +3,7 @@ set -eo pipefail
 
 export CCACHE_DIR=/app/build/ccache
 export PKG_CONFIG_PATH=/opt/install/lib/pkgconfig
+export PATH=/opt/install/bin:$PATH
 
 # zlib
 git clone https://github.com/madler/zlib.git --depth=1 --branch=v1.3.2 /tmp/zlib
@@ -11,6 +12,7 @@ cd /tmp/zlib && rm -rf build
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/opt/install \
   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+  -DCMAKE_C_COMPILER_LAUNCHER=ccache \
   -DCMAKE_INSTALL_DATAROOTDIR=/tmp/zlib-data \
   -DZLIB_BUILD_TESTING=OFF \
   -DZLIB_BUILD_SHARED=OFF
@@ -24,6 +26,7 @@ cd /tmp/libpng && rm -rf build
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/opt/install \
   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+  -DCMAKE_C_COMPILER_LAUNCHER=ccache \
   -DCMAKE_INSTALL_DATAROOTDIR=/tmp/libpng-data \
   -DCMAKE_INSTALL_BINDIR=/tmp/libpng-data \
   -DPNG_TESTS=OFF \
@@ -37,6 +40,7 @@ git clone --recursive https://github.com/PCRE2Project/pcre2.git --depth=1 --bran
 cd /tmp/pcre2 && rm -rf build
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/opt/install \
+  -DCMAKE_C_COMPILER_LAUNCHER=ccache \
   -DCMAKE_INSTALL_DATAROOTDIR=/tmp/pcre2-data \
   -DCMAKE_INSTALL_BINDIR=/tmp/pcre2-data \
   -DCMAKE_DISABLE_FIND_PACKAGE_ZLIB=ON \
@@ -56,6 +60,7 @@ cd /tmp/freetype && rm -rf build
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/opt/install \
   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+  -DCMAKE_C_COMPILER_LAUNCHER=ccache \
   -DBUILD_SHARED_LIBS=OFF \
   -DFT_DISABLE_HARFBUZZ=ON \
   -DFT_DISABLE_BZIP2=ON \
@@ -70,6 +75,7 @@ cd /tmp/libexpat/expat && rm -rf build
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/opt/install \
   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+  -DCMAKE_C_COMPILER_LAUNCHER=ccache \
   -DCMAKE_INSTALL_DATAROOTDIR=/tmp/expat-data \
   -DBUILD_SHARED_LIBS=OFF \
   -DEXPAT_BUILD_EXAMPLES=OFF \
@@ -204,28 +210,15 @@ cd /tmp/gdk-pixbuf && rm -rf build
 meson setup build --buildtype=release \
   --prefix=/opt/install \
   --default-library=static \
-  --libdir=lib -Dman=false \
+  --libdir=lib \
   -Dtests=false \
+  -Dman=false \
   -Dinstalled_tests=false \
   -Djpeg=disabled \
-  -Dgif=disabled > /app/build/build.txt
+  -Dgif=disabled \
+  -Dtiff=disabled \
+  -Dglycin=disabled \
+  -Dthumbnailer=disabled \
+  -Dintrospection=disabled > /app/build/build.txt
 meson compile -C build -j$(nproc)
 meson install -C build --strip
-
-# gobject-introspection
-git clone https://gitlab.gnome.org/GNOME/gobject-introspection.git --depth=1 --branch=1.86.0 /tmp/gobject-introspection
-cd /tmp/gobject-introspection
-
-meson setup build --buildtype=release \
-  --default-library=static \
-  --libdir=lib
-
-# GTK
-git clone https://gitlab.gnome.org/GNOME/gtk.git --depth=1 --branch=4.23.2 /tmp/gtk
-cd /tmp/gtk
-
-meson setup build --buildtype=release \
-  -Ddemos=false \
-  -Dexamples=false \
-  -Dtests=false \
-  -Dwayland_backend=false
