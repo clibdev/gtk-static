@@ -138,6 +138,7 @@ git clone https://gitlab.freedesktop.org/cairo/cairo.git --depth=1 --branch=1.18
 
 cd /tmp/cairo && rm -rf build
 meson setup build --buildtype=release \
+  --prefix=/opt/install \
   --default-library=static \
   --libdir=lib \
   -Dtests=disabled \
@@ -145,15 +146,30 @@ meson setup build --buildtype=release \
 meson compile -C build -j$(nproc)
 meson install -C build --strip
 
+# FriBidi
+git clone https://github.com/fribidi/fribidi.git --depth=1 --branch=v1.0.16 /tmp/fribidi
+
+cd /tmp/fribidi && rm -rf build
+meson setup build --buildtype=release \
+  --prefix=/opt/install \
+  --default-library=static \
+  --libdir=lib \
+  -Dtests=false \
+  -Dbin=false \
+  -Ddocs=false
+meson compile -C build -j$(nproc)
+meson install -C build --strip
+
 # Pango
 git clone https://gitlab.gnome.org/GNOME/pango.git --depth=1 --branch=1.58.0 /tmp/pango
-cd /tmp/pango
 
+cd /tmp/pango && rm -rf build
 meson setup build --buildtype=release \
+  --prefix=/opt/install \
   --default-library=static \
   --libdir=lib \
   -Dbuild-testsuite=false \
-  -Dbuild-examples=false
+  -Dbuild-examples=false > /app/build/build.txt
 meson compile -C build -j$(nproc)
 meson install -C build --strip
 
