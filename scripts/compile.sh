@@ -34,6 +34,23 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
 cmake --build build -j$(nproc)
 cmake --install build --strip
 
+# libjpeg-turbo
+git clone https://github.com/libjpeg-turbo/libjpeg-turbo.git --depth=1 --branch=3.2.0 /tmp/libjpeg-turbo
+
+cd /tmp/libjpeg-turbo && rm -rf build
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/opt/install \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+  -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+  -DCMAKE_INSTALL_DATAROOTDIR=/tmp/libjpeg-turbo-data \
+  -DENABLE_SHARED=OFF \
+  -DWITH_TURBOJPEG=OFF \
+  -DWITH_JPEG8=ON \
+  -DWITH_TOOLS=OFF \
+  -DWITH_TESTS=OFF
+cmake --build build -j$(nproc)
+cmake --install build --strip
+
 # pcre2
 git clone --recursive https://github.com/PCRE2Project/pcre2.git --depth=1 --branch=pcre2-10.47 /tmp/pcre2
 
@@ -64,7 +81,8 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_SHARED_LIBS=OFF \
   -DFT_DISABLE_HARFBUZZ=ON \
   -DFT_DISABLE_BZIP2=ON \
-  -DFT_DISABLE_BROTLI=ON
+  -DFT_DISABLE_BROTLI=ON \
+  -DFT_DISABLE_PNG=ON
 cmake --build build -j$(nproc)
 cmake --install build --strip
 
