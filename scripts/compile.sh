@@ -51,6 +51,23 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
 cmake --build build -j$(nproc)
 cmake --install build --strip
 
+# libtiff
+git clone https://gitlab.com/libtiff/libtiff.git --depth=1 --branch=v4.7.2 /tmp/libtiff
+
+cd /tmp/libtiff && rm -rf _build
+cmake -B _build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/opt/install \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+  -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+  -DBUILD_SHARED_LIBS=OFF \
+  -Dtiff-tools=OFF \
+  -Dtiff-tests=OFF \
+  -Dtiff-contrib=OFF \
+  -Dtiff-docs=OFF \
+  -Dtiff-cxx=OFF
+cmake --build _build -j$(nproc)
+cmake --install _build --strip
+
 # pcre2
 git clone --recursive https://github.com/PCRE2Project/pcre2.git --depth=1 --branch=pcre2-10.47 /tmp/pcre2
 
