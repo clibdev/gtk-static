@@ -273,3 +273,21 @@ meson setup build --buildtype=release \
   -Dintrospection=disabled
 meson compile -C build -j$(nproc)
 meson install -C build --strip
+
+# libxkbcommon
+git clone https://github.com/xkbcommon/libxkbcommon.git --depth=1 --branch=xkbcommon-1.13.2 /tmp/libxkbcommon
+
+cd /tmp/libxkbcommon && rm -rf build
+meson setup build --buildtype=release \
+  --prefix=/opt/install \
+  --default-library=static \
+  --libdir=lib \
+  --datadir=/usr/share \
+  -Db_ndebug=true \
+  -Denable-xkbregistry=false \
+  -Denable-tools=false \
+  -Denable-x11=false \
+  -Denable-wayland=false \
+  -Denable-bash-completion=false
+meson compile -C build -j$(nproc)
+meson install -C build --strip
